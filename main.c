@@ -28,7 +28,7 @@ int main() {
     int choice = 0;
 
 
-    printf("Please, enter the choice: ");
+    printf("Please, enter the choice 1-4: ");
     scanf("%d", &choice);
 
     while(choice != 1 && choice != 2 && choice != 3 && choice != 4){
