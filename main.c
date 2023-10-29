@@ -4,7 +4,7 @@
 #include <ctype.h>
 #define PI 3.14159265359
 
-typedef struct 
+typedef struct
 {
     float real;
     float imag;
@@ -26,28 +26,28 @@ int main() {
     float R1, R2, L, C, w, f, fmin, fmax, df;
 
     int choice = 0;
-    
-    
+
+
     printf("Please, enter the choice: ");
     scanf("%d", &choice);
-    
+
     while(choice != 1 && choice != 2 && choice != 3 && choice != 4){
         int c;
         while ((c = getchar()) != '\n' && c != EOF);
         printf("Please, reenter: ");
         scanf("%d", &choice);
-       
+
     }
 
     if(choice == 3 || choice == 4){
         R1 = CheckValue("Enter R1: ", ' ');
         R2 = CheckValue("Enter R2: ", ' ');
-        
+
     }
     else{
         R1 = CheckValue("Enter R: ", ' ');
     }
-    
+
     while(1){
         L = CheckValue("Enter L: ", ' ');
         C = CheckValue("Enter C: ", ' ');
@@ -59,7 +59,7 @@ int main() {
             printf("Please, reenter L and C. They must be greater than zero\n");
         }
     }
-   
+
     printf("Current f: %fHz\n", f);
     while(1){
         fmin = CheckValue("Enter fmin (Hz): ", ' ');
@@ -71,10 +71,10 @@ int main() {
             break;
         }
     }
-    
-    df = CheckValue("Enter df: ", 'D');
 
-   
+    df = CheckValue("Enter df: ", 'D');
+    printf("\n");
+
 
     switch (choice){
         case 1:
@@ -85,36 +85,48 @@ int main() {
                 }
                 PrintOut(func1(R1,C, L, f), f);
                 f+= df;
-                
+
             }
             break;
-            
+
         case 2:
             while(f>= fmin && f<=fmax){
+                if (df == 0){
+                    PrintOut(func2(R1,C, L, f), f);
+                    break;
+                }
                 PrintOut(func2(R1,C, L, f), f);
                 f+= df;
-                
+
             }
             break;
         case 3:
            while(f>= fmin && f<=fmax){
+                if (df == 0){
+                    PrintOut(func3(R1,R2, C, L, f), f);
+                    break;
+                }
                 PrintOut(func3(R1,R2, C, L, f), f);
                 f+= df;
-                
+
             }
             break;
         case 4:
             while(f>= fmin && f<=fmax){
+                if (df == 0){
+                    PrintOut(func4(R1,R2, C, L, f), f);
+                    break;
+                }
                 PrintOut(func4(R1,R2, C, L, f), f);
                 f+= df;
-                
+
             }
             break;
 
     }
-    
-    
-   
+
+
+
     getchar();
 
     return 0;
@@ -140,7 +152,7 @@ complex func2(float R, float C, float L, float f){
     y.real = R;
     y.imag = w*L - 1.0/(w*C);
     return Division(x, y);
-    
+
 }
 complex func3(float R1, float R2, float C, float L, float f){
     complex x, y;
@@ -150,7 +162,7 @@ complex func3(float R1, float R2, float C, float L, float f){
     y.real = R1 + R2;
     y.imag = w*L - 1.0/(w*C);
     return Division(x, y);
-    
+
 }
 complex func4(float R1, float R2, float C, float L, float f){
     complex x, y;
@@ -160,7 +172,7 @@ complex func4(float R1, float R2, float C, float L, float f){
     y.real = R1 + R2;
     y.imag = w*L - 1.0/(w*C);
     return Division(x, y);
-    
+
 }
 complex Division(complex x, complex y){
     complex result;
@@ -176,12 +188,12 @@ void PrintOut(complex num, float f){
     else{
         printf("Current Z is %f + %fi at f = %fHz\n", num.real, num.imag, f);
     }
-    
+
 }
 
 float CheckValue(char *prompt, char special){
     char buffer[100];
-    
+
     printf("%s", prompt);
     while(1){
         int checkI = 1;
@@ -197,13 +209,13 @@ float CheckValue(char *prompt, char special){
                 checkI = 0;
                 break;
             }
-        
+
         }
         if(checkI == 1){
             break;
         }
     }
     return atof(buffer);
-    
-    
+
+
 }
