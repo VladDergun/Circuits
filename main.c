@@ -1,180 +1,217 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
+#define PI 3.14159265359
 
-
-
-float CheckValue(char *prompt);
-
-
-
-
-int main()
+typedef struct
 {
-    int size;
-    float *x;
-    float *xp;
-    float **a;
-    float *b;
-    float *delta;
-    int flag = 1; //first-check variable
+    float real;
+    float imag;
+}complex;
 
 
+void PrintOut(complex num, float f);
+complex Division(complex x, complex y);
+complex func1(float R, float C, float L, float f);
+complex func2(float R, float C, float L, float f);
+complex func3(float R1, float R2, float C, float L, float f);
+complex func4(float R1, float R2, float C, float L, float f);
+float CheckValue(char *prompt, char special);
+
+
+int main() {
+    complex y;
+    complex x;
+    float R1, R2, L, C, w, f, fmin, fmax, df;
+
+    int choice;
 
     while(1){
-        size = (int)CheckValue("Enter the amount of equations: ");
-        
-        a = (float **)malloc(size * sizeof(float*));
-        b = (float*)malloc(size * sizeof(float));
-        delta = (float*)malloc(size * sizeof(float));
+        printf("Please, enter the choice 1-4: ");
+        scanf("%d", &choice);
+
+        while(choice != 1 && choice != 2 && choice != 3 && choice != 4){
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            printf("Please, reenter: ");
+            scanf("%d", &choice);
+
+        }
+
+        if(choice == 3 || choice == 4){
+            R1 = CheckValue("Enter R1: ", ' ');
+            R2 = CheckValue("Enter R2: ", ' ');
+
+        }
+        else{
+            R1 = CheckValue("Enter R: ", ' ');
+        }
 
         while(1){
-            int flag = 1;
-            if (a == NULL || b == NULL) {
-                printf("Memory allocation failed\n");
-                return 1;
-            }
-
-            for(int i = 0; i < size; i++){
-                a[i] = (float*)malloc(size * sizeof(float));
-                if (a[i] == NULL){
-                    printf("Memory allocation failed\n");
-                    return 1;
-                }
-
-                for (int j = 0; j < size; j++) {
-                    printf("Enter value for the a%d%d: ", i+1, j+1);
-                    a[i][j] = CheckValue("");
-                }
-                printf("Enter value for the b%d: ", i+1);
-                b[i] = CheckValue("");
-                printf("\n");
-
-            }
-        //End of creating SOE
-        //Initiate checking procedure
-            float scheck = 0.0;
-
-            for(int i = 0; i < size; i++){
-                scheck = 0.0;
-                for (int j = 0; j < size; j++){
-                    if(j != i){
-                        scheck += a[i][j];
-                    }
-
-                }
-                if (a[i][i] <= scheck){
-
-                    flag = 0;
-                    
-                }
-
-            }
-            if (flag == 1){
-                break;
-            }
-            else if(flag == 0){
-                printf("Could not converge. Please, enter another values.\n");
-            }
-        }
-        //Creating the System of equations
-
-        float eps;
-
-        while(1){
-            eps = CheckValue("\nPlease, enter the accuracy (0-1): ");
-            if(eps <= 0 || eps > 1){
-                printf("Error. Please, enter the accuracy correctly");
-            }
-            else{break;}
-        }
-
-        float max = 2*eps;
-
-        //Creating starting values array
-        xp = (float*)malloc(size*sizeof(float));
-        x = (float*)malloc(size*sizeof(float));
-
-        for(int i = 0; i < size; i++){
-            xp[i] = b[i]/a[i][i];
-        }
-        
-        while(max > eps){
-            for(int i = 0; i < size; i++){
-                float sum = 0.0;
-                for (int j = 0; j < size; j++){
-                    if(j!=i){
-                        sum+=a[i][j]*xp[j];
-                    }
-                }
-
-                x[i] = (b[i] - sum)/(a[i][i]);
-            }
-            for(int i = 0; i < size; i++){
-                delta[i] = fabs(x[i] - xp[i]);
-            }
-
-            max = delta[0];
-            for(int i = 0; i < size; i++){
-                if(delta[i] > max){
-                    max = delta[i];
-                }
-            }
-
-
-
-            for(int i = 0; i < size; i++){
-                xp[i] = x[i];
-            }
-
-        }
-        for(int i = 0; i < size; i++){
-            printf("x%d : %f\n", i+1, xp[i]);
-        }
-
-        //Cleaning the memory
-        for (int i = 0; i < size; i++) {
-            free(a[i]);
-        }
-        free(a);
-        free(b);
-        free(xp);
-        free(x);
-        free(delta);
-        printf("\n");
-
-        char answer;
-        printf("Enter Y, if you want to continue. To exit, enter N:");
-        while(1){
-            scanf("%s", &answer);
-            if(answer == 'Y'){
-                break;
-            }
-            else if(answer == 'N'){
-                flag = 2;
+            L = CheckValue("Enter L: ", ' ');
+            C = CheckValue("Enter C: ", ' ');
+            f = 1.0/(2*PI*sqrt(L*C));
+            if(!isinf(f) && !isnan(f)){
                 break;
             }
             else{
-                printf("Error. Please enter the answer again. Y/N:");
+                printf("Please, reenter L and C. They must be greater than zero\n");
             }
         }
-        if (flag == 2){
+
+        printf("Current f: %fHz\n", f);
+        while(1){
+            fmin = CheckValue("Enter fmin (Hz): ", ' ');
+            fmax = CheckValue("Enter fmax (Hz): ", ' ');
+            if(fmin > f || fmax < f){
+                printf("f lies outside this scope. Reenter.\n");
+            }
+            else{
+                break;
+            }
+        }
+
+        df = CheckValue("Enter df: ", 'D');
+        printf("\n");
+
+
+        switch (choice){
+            case 1:
+                while(f>= fmin && f<=fmax){
+                    if (df == 0){
+                        PrintOut(func1(R1,C, L, f), f);
+                        break;
+                    }
+                    PrintOut(func1(R1,C, L, f), f);
+                    f+= df;
+
+                }
+                break;
+
+            case 2:
+                while(f>= fmin && f<=fmax){
+                    if (df == 0){
+                        PrintOut(func2(R1,C, L, f), f);
+                        break;
+                    }
+                    PrintOut(func2(R1,C, L, f), f);
+                    f+= df;
+
+                }
+                break;
+            case 3:
+            while(f>= fmin && f<=fmax){
+                    if (df == 0){
+                        PrintOut(func3(R1,R2, C, L, f), f);
+                        break;
+                    }
+                    PrintOut(func3(R1,R2, C, L, f), f);
+                    f+= df;
+
+                }
+                break;
+            case 4:
+                while(f>= fmin && f<=fmax){
+                    if (df == 0){
+                        PrintOut(func4(R1,R2, C, L, f), f);
+                        break;
+                    }
+                    PrintOut(func4(R1,R2, C, L, f), f);
+                    f+= df;
+
+                }
+                break;
+
+        }
+
+        int c;
+        char answer = ' ';
+        
+        while ((c = getchar()) != '\n' && c != EOF);
+
+        while(answer != 'N' && answer != 'Y'){
+            printf("\nWould you like to continue? Y/N: ");
+            scanf("%c", &answer);
+            while ((c = getchar()) != '\n' && c != EOF);
+        }
+        if(answer == 'Y'){
+            printf("\n");
+        }
+        else if (answer == 'N'){
+
             break;
         }
 
-
-
     }
-    printf("\nExecuted successfully. Press any key to exit.");
+    
 
 
-
-    getch();
+    getchar();
 
     return 0;
 }
 
-float CheckValue(char *prompt){
+
+
+complex func1(float R, float C, float L, float f){
+    complex x, y;
+    float w = 2*PI*f;
+    x.real = L/C;
+    x.imag = -R/(w*C);
+    y.real = R;
+    y.imag = w*L - 1.0/(w*C);
+    return Division(x, y);
+}
+
+complex func2(float R, float C, float L, float f){
+    complex x, y;
+    float w = 2*PI*f;
+    x.real = L/C;
+    x.imag = R/(w*C);
+    y.real = R;
+    y.imag = w*L - 1.0/(w*C);
+    return Division(x, y);
+
+}
+complex func3(float R1, float R2, float C, float L, float f){
+    complex x, y;
+    float w = 2*PI*f;
+    x.real = R1*R2;
+    x.imag = R1*(w*L - 1.0/(w*C));
+    y.real = R1 + R2;
+    y.imag = w*L - 1.0/(w*C);
+    return Division(x, y);
+
+}
+complex func4(float R1, float R2, float C, float L, float f){
+    complex x, y;
+    float w = 2*PI*f;
+    x.real = R1*R2 + L/C;
+    x.imag = R1*(w*L*R1 - R2/(w*C));
+    y.real = R1 + R2;
+    y.imag = w*L - 1.0/(w*C);
+    return Division(x, y);
+
+}
+complex Division(complex x, complex y){
+    complex result;
+    result.real = (x.real * y.real + x.imag * y.imag)/(y.real * y.real + y.imag * y.imag);
+    result.imag = (x.imag * y.real - x.real * y.imag)/(y.real * y.real + y.imag * y.imag);
+    return result;
+}
+
+void PrintOut(complex num, float f){
+    if(num.imag < 0){
+        printf("Current Z is %f - %fi at f = %fHz\n", num.real, -num.imag, f);
+    }
+    else{
+        printf("Current Z is %f + %fi at f = %fHz\n", num.real, num.imag, f);
+    }
+
+}
+
+float CheckValue(char *prompt, char special){
     char buffer[100];
 
     printf("%s", prompt);
@@ -182,19 +219,20 @@ float CheckValue(char *prompt){
         int checkI = 1;
         scanf("%99s", buffer);
         for(int i = 0; buffer[i]; i++){
-            if (isdigit(buffer[i]) == 0 && buffer[i] != '.' && buffer[i])
+            if (isdigit(buffer[i]) == 0 && buffer[i] != '.' && buffer[i] && special != 'D')
             {
-                printf("\nYour input is invalid. Reenter: ");
+                printf("\nYour input is invalid. Negative values not allowed. Reenter: ");
                 checkI = 0;
                 break;
             }
-
+            else if(isdigit(buffer[i]) == 0 && buffer[i] != '.' && buffer[i] && special == 'D' && buffer[i] != '-'){
+                checkI = 0;
+                break;
+            }
         }
         if(checkI == 1){
             break;
         }
     }
     return atof(buffer);
-
-
 }
